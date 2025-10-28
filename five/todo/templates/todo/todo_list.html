@@ -1,0 +1,104 @@
+<!-- templates/todo/todo_list.html -->
+{% extends 'todo/base.html' %}
+
+{% block title %}My Todos{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>My Todos</h1>
+    <a href="{% url 'task_create' %}" class="btn btn-primary">+ New Todo</a>
+</div>
+
+{% if todos %}
+    <div class="row">
+        {% for todo in todos %}
+            <div class="col-md-6 mb-3">
+                <div class="card todo-item {% if todo.is_overdue %}todo-overdue{% endif %}">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start">
+                            <input 
+                                type="checkbox" 
+                                class="form-check-input me-3 mt-1 todo-checkbox" 
+                                data-todo-id="{{ todo.id }}"
+                                {% if todo.completed %}checked{% endif %}
+                            >
+                            <div class="flex-grow-1 {% if todo.completed %}todo-completed{% endif %}">
+                                <h5 class="card-title mb-1">{{ todo.name }}</h5>
+                                {% if todo.description %}
+                                    <p class="card-text text-muted small">{{ todo.description|truncatewords:20 }}</p>
+                                {% endif %}
+                                
+                                <div class="small text-muted mt-2">
+                                    {% if todo.due_date %}
+                                        <span class="badge {% if todo.is_overdue %}bg-danger{% else %}bg-info{% endif %}">
+                                            Due: {{ todo.due_date|date:"M d, Y" }}
+                                        </span>
+                                    {% endif %}
+                                    {% if todo.completed %}
+                                        <span class="badge bg-success">Completed</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="btn-group ms-2">
+                                <a href="{% url 'task_edit' todo.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                                <a href="{% url 'task_delete' todo.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-info">
+        <h4>No todos yet!</h4>
+        <p>Get started by creating your first todo.</p>
+        <a href="{% url 'task_create' %}" class="btn btn-primary">Create Todo</a>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Handle todo completion toggle via AJAX
+    document.querySelectorAll('.todo-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const todoId = this.dataset.todoId;
+            const url = `/todo/${todoId}/toggle/`;
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Reload page to show updated status
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                this.checked = !this.checked; // Revert on error
+            });
+        });
+    });
+
+    // Get CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}
