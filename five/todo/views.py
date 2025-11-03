@@ -7,13 +7,12 @@ from .models import ToDo
 from .forms import ToDoForm
 
 @login_required
-def task_list(request):  # Renamed from todo_list
-    """Display all todos for the logged-in user"""
+def todo_list(request):  # Renamed from todo_list
     todos = ToDo.objects.filter(user=request.user)
     return render(request, 'todo/todo_list.html', {'todos': todos})
 
 @login_required
-def task_create(request):  # Renamed from todo_create
+def todo_create(request):  # Renamed from todo_create
     """Create a new todo"""
     if request.method == 'POST':
         form = ToDoForm(request.POST)
@@ -22,7 +21,7 @@ def task_create(request):  # Renamed from todo_create
             todo.user = request.user
             todo.save()
             messages.success(request, 'Task created successfully!')
-            return redirect('task_list')
+            return redirect('todo_list')
     else:
         form = ToDoForm()
     
@@ -32,7 +31,7 @@ def task_create(request):  # Renamed from todo_create
     })
 
 @login_required
-def task_edit(request, pk):  # Renamed from todo_edit
+def todo_edit(request, pk):  # Renamed from todo_edit
     """Edit an existing todo"""
     todo = get_object_or_404(ToDo, pk=pk, user=request.user)
     
@@ -41,7 +40,7 @@ def task_edit(request, pk):  # Renamed from todo_edit
         if form.is_valid():
             form.save()
             messages.success(request, 'Task updated successfully!')
-            return redirect('task_list')
+            return redirect('todo_list')
     else:
         form = ToDoForm(instance=todo)
     
@@ -52,19 +51,19 @@ def task_edit(request, pk):  # Renamed from todo_edit
     })
 
 @login_required
-def task_delete(request, pk):  # Renamed from todo_delete
+def todo_delete(request, pk):  # Renamed from todo_delete
     """Delete a todo"""
     todo = get_object_or_404(ToDo, pk=pk, user=request.user)
     
     if request.method == 'POST':
         todo.delete()
         messages.success(request, 'Task deleted successfully!')
-        return redirect('task_list')
+        return redirect('todo_list')
     
     return render(request, 'todo/todo_confirm_delete.html', {'todo': todo})
 
 @login_required
-def task_toggle_complete(request, pk):  # Renamed from todo_toggle_complete
+def todo_toggle_complete(request, pk):  # Renamed from todo_toggle_complete
     """Toggle todo completion status"""
     todo = get_object_or_404(ToDo, pk=pk, user=request.user)
     
