@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from .models import ToDo
 
-class TaskCreationTest(TestCase):
+class ToDoCreationTest(TestCase):
     """
     Given a valid task title, description, and due date,
     When the user submits the create task form
@@ -20,20 +20,20 @@ class TaskCreationTest(TestCase):
         )
         self.client.login(username='testuser', password='testpass123')
     
-    def test_create_new_task(self):
+    def test_create_new_todo(self):
         data = {
             "name": "Write unit tests",
-            "description": "Add tests for the create_task view",
+            "description": "Add tests for the create_todo view",
             "due_date": "2024-12-31",
             "completed": False
         }
        
-        response = self.client.post(reverse("task_create"), data)
+        response = self.client.post(reverse("todo_create"), data)
        
-        task = ToDo.objects.first()
+        todo = ToDo.objects.first()
         self.assertEqual(response.status_code, 302)  # Redirect to task list
-        self.assertRedirects(response, reverse("task_list"))
+        self.assertRedirects(response, reverse("todo_list"))
         self.assertEqual(ToDo.objects.count(), 1)
-        self.assertEqual(task.name, "Write unit tests")
-        self.assertFalse(task.completed)
-        self.assertEqual(str(task.due_date), "2024-12-31")
+        self.assertEqual(todo.name, "Write unit tests")
+        self.assertFalse(todo.completed)
+        self.assertEqual(str(todo.due_date), "2024-12-31")
