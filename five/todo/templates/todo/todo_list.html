@@ -6,7 +6,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>My Todos</h1>
-    <a href="{% url 'task_create' %}" class="btn btn-primary">+ New Todo</a>
+    <a href="{% url 'todo_create' %}" class="btn btn-primary">+ New Todo</a>
 </div>
 
 {% if todos %}
@@ -40,8 +40,8 @@
                                 </div>
                             </div>
                             <div class="btn-group ms-2">
-                                <a href="{% url 'task_edit' todo.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
-                                <a href="{% url 'task_delete' todo.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                                <a href="{% url 'todo_edit' todo.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                                <a href="{% url 'todo_delete' todo.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
                             </div>
                         </div>
                     </div>
@@ -53,7 +53,7 @@
     <div class="alert alert-info">
         <h4>No todos yet!</h4>
         <p>Get started by creating your first todo.</p>
-        <a href="{% url 'task_create' %}" class="btn btn-primary">Create Todo</a>
+        <a href="{% url 'todo_create' %}" class="btn btn-primary">Create Todo</a>
     </div>
 {% endif %}
 {% endblock %}

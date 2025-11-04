@@ -16,11 +16,11 @@ class ToDo(models.Model):
 
     @property
     def is_overdue(self):
-        return not self.completed and self.due_date and timezone.now() > self.due_date
-    class Meta:
-        ordering = ['due_date']
-        verbose_name = 'To-Do'
-        verbose_name_plural = 'To-Dos'
+        return not self.completed and self.due_date and timezone.now().date() > self.due_date
+    # class Meta:
+    #     ordering = ['due_date']
+    #     verbose_name = 'To-Do'
+    #     verbose_name_plural = 'To-Dos'
         
     def mark_complete(self):
         self.completed = True

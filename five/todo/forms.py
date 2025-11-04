@@ -4,7 +4,8 @@ from .models import ToDo
 class ToDoForm(forms.ModelForm):
     class Meta:
         model = ToDo
+        exclude = ['user']
         fields = ['name', 'description', 'due_date']
         widgets = {
-            'due_date': forms.DateTimeUnput(attrs={'type': 'datetime-local'}),
+            'due_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
         }
