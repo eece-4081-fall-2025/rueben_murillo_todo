@@ -6,14 +6,32 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>My Todos</h1>
-    <a href="{% url 'todo_create' %}" class="btn btn-primary">+ New Todo</a>
+    <div>
+        <a href="{% url 'todo_create' %}" class="btn btn-primary">+ New Todo</a>
+        <a href="{% url 'project_list' %}" class="btn btn-secondary">Projects</a>
+    </div>
 </div>
+
+<!-- Filter + Search Form -->
+<form method="get" class="d-flex mb-4 align-items-center">
+    <input type="text" name="q" class="form-control me-2" style="max-width: 250px"
+           placeholder="Search tasks..." value="{{ request.GET.q }}">
+    <select name="project" class="form-select me-2" style="max-width: 200px;">
+        <option value="">All Projects</option>
+        {% for project in projects %}
+            <option value="{{ project.id }}" {% if project.id|stringformat:"s" == request.GET.project %}selected{% endif %}>
+                {{ project.name }}
+            </option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-outline-info">Filter</button>
+</form>
 
 {% if todos %}
     <div class="row">
         {% for todo in todos %}
             <div class="col-md-6 mb-3">
-                <div class="card todo-item {% if todo.is_overdue %}todo-overdue{% endif %}">
+                <div class="card todo-item {% if todo.is_overdue %}border-danger{% endif %}">
                     <div class="card-body">
                         <div class="d-flex align-items-start">
                             <input 
@@ -22,18 +40,26 @@
                                 data-todo-id="{{ todo.id }}"
                                 {% if todo.completed %}checked{% endif %}
                             >
-                            <div class="flex-grow-1 {% if todo.completed %}todo-completed{% endif %}">
-                                <h5 class="card-title mb-1">{{ todo.name }}</h5>
+                            <div class="flex-grow-1 {% if todo.completed %}text-muted text-decoration-line-through{% endif %}">
+                                <h5 class="card-title mb-1">
+                                    {{ todo.name }}
+                                    {% if todo.project %}
+                                        <small class="text-secondary">({{ todo.project.name }})</small>
+                                    {% endif %}
+                                </h5>
                                 {% if todo.description %}
-                                    <p class="card-text text-muted small">{{ todo.description|truncatewords:20 }}</p>
+                                    <p class="card-text small">{{ todo.description|truncatewords:20 }}</p>
                                 {% endif %}
-                                
-                                <div class="small text-muted mt-2">
+
+                                <div class="small mt-2">
                                     {% if todo.due_date %}
                                         <span class="badge {% if todo.is_overdue %}bg-danger{% else %}bg-info{% endif %}">
                                             Due: {{ todo.due_date|date:"M d, Y" }}
                                         </span>
                                     {% endif %}
+                                    <span class="badge {% if todo.priority == 1 %}bg-danger{% elif todo.priority == 2 %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                                        {{ todo.get_priority_display }}
+                                    </span>
                                     {% if todo.completed %}
                                         <span class="badge bg-success">Completed</span>
                                     {% endif %}
@@ -50,10 +76,10 @@
         {% endfor %}
     </div>
 {% else %}
-    <div class="alert alert-info">
+    <div class="alert alert-info text-center py-4">
         <h4>No todos yet!</h4>
         <p>Get started by creating your first todo.</p>
-        <a href="{% url 'todo_create' %}" class="btn btn-primary">Create Todo</a>
+        <a href="{% url 'todo_create' %}" class="btn btn-primary mt-2">Create Todo</a>
     </div>
 {% endif %}
 {% endblock %}
@@ -65,7 +91,7 @@
         checkbox.addEventListener('change', function() {
             const todoId = this.dataset.todoId;
             const url = `/todo/${todoId}/toggle/`;
-            
+
             fetch(url, {
                 method: 'POST',
                 headers: {
@@ -75,17 +101,16 @@
             })
             .then(response => response.json())
             .then(data => {
-                // Reload page to show updated status
-                location.reload();
+                location.reload(); // refresh to reflect change
             })
             .catch(error => {
                 console.error('Error:', error);
-                this.checked = !this.checked; // Revert on error
+                this.checked = !this.checked; // revert on failure
             });
         });
     });
 
-    // Get CSRF token from cookies
+    // Helper to get CSRF token from cookies
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {

@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from django.utils import timezone
 from datetime import timedelta
-from .models import ToDo
+from .models import ToDo, Project
 
 class ToDoTests(TestCase):
     def setUp(self):
@@ -101,3 +101,47 @@ class ToDoTests(TestCase):
         response = self.client.post(reverse("todo_create"), invalid_data)
         self.assertEqual(response.status_code, 200)  # stays on same page
         self.assertContains(response, "Enter a valid date")
+        
+class ProjectTests(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(username="tester", password="secret123")
+        self.client.login(username="tester", password="secret123")
+
+    def test_create_project(self):
+        """User can create a new project"""
+        data = {"name": "School", "description": "Homework tracking"}
+        response = self.client.post(reverse("project_create"), data)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Project.objects.filter(name="School").exists())
+
+    def test_project_list_page_loads(self):
+        """Ensure project list page loads successfully"""
+        Project.objects.create(user=self.user, name="Work", description="Office tasks")
+        response = self.client.get(reverse("project_list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Work")
+
+    def test_project_links_appear_in_todo_list(self):
+        """Projects should appear in todo_list filter dropdown"""
+        project = Project.objects.create(user=self.user, name="Home", description="Chores")
+        response = self.client.get(reverse("todo_list"))
+        self.assertContains(response, "Home")
+
+
+class ToDoProjectFilterTests(TestCase):
+    
+    def setUp(self):
+        self.user = User.objects.create_user(username="tester", password="secret123")
+        self.client.login(username="tester", password="secret123")
+        self.project_a = Project.objects.create(user=self.user, name="Personal")
+        self.project_b = Project.objects.create(user=self.user, name="Work")
+        ToDo.objects.create(user=self.user, name="Task A", project=self.project_a)
+        ToDo.objects.create(user=self.user, name="Task B", project=self.project_b)
+
+    def test_filter_by_project(self):
+        """Filter tasks by selected project"""
+        response = self.client.get(reverse("todo_list"), {"project": self.project_a.id})
+        todos = response.context["todos"]
+        self.assertEqual(todos.count(), 1)
+        self.assertEqual(todos.first().project, self.project_a)

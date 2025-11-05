@@ -5,8 +5,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
-from .models import ToDo
-from .forms import ToDoForm
+from .models import Project, ToDo
+from .forms import ToDoForm, ProjectForm
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -50,12 +50,23 @@ def register_view(request):
 
 @login_required
 def todo_list(request):  
-    todos = ToDo.objects.filter(user=request.user)
-    return render(request, 'todo/todo_list.html', {'todos': todos})
-
+    todos = ToDo.objects.filter(user=request.user).order_by('priority', 'due_date')
+    query = request.GET.get('q')
+    if query:
+        todos = todos.filter(name__icontains=query)
+    
+    project_filter = request.GET.get('project')
+    if project_filter:
+        todos = todos.filter(project__id=project_filter)
+        
+    return render(request, 'todo/todo_list.html', {
+        'todos': todos,
+        'projects': Project.objects.filter(user=request.user),
+    })    
+    
+    
 @login_required
 def todo_create(request):  # Renamed from todo_create
-    """Create a new todo"""
     if request.method == 'POST':
         form = ToDoForm(request.POST)
         if form.is_valid():
@@ -74,7 +85,6 @@ def todo_create(request):  # Renamed from todo_create
 
 @login_required
 def todo_edit(request, pk):  # Renamed from todo_edit
-    """Edit an existing todo"""
     todo = get_object_or_404(ToDo, pk=pk, user=request.user)
     
     if request.method == 'POST':
@@ -94,7 +104,6 @@ def todo_edit(request, pk):  # Renamed from todo_edit
 
 @login_required
 def todo_delete(request, pk):  # Renamed from todo_delete
-    """Delete a todo"""
     todo = get_object_or_404(ToDo, pk=pk, user=request.user)
     
     if request.method == 'POST':
@@ -106,7 +115,6 @@ def todo_delete(request, pk):  # Renamed from todo_delete
 
 @login_required
 def todo_toggle_complete(request, pk):  # Renamed from todo_toggle_complete
-    """Toggle todo completion status"""
     todo = get_object_or_404(ToDo, pk=pk, user=request.user)
     
     if todo.completed:
@@ -124,3 +132,31 @@ def todo_toggle_complete(request, pk):  # Renamed from todo_toggle_complete
 
     messages.success(request, f'Todo marked as {status}!')
     return redirect('todo_list')
+
+@login_required
+def project_list(request):
+    if request.method == 'POST':
+        form = ProjectForm(request.POST)
+        if form.is_valid():
+            project = form.save(commit= False)
+            project.user = request.user
+            project.save()
+            messages.success(request, 'Project created successfully!')
+            return redirect('project_list')
+    else:
+        form = ProjectForm()
+    return render(request, 'todo/project_form.html', {'form' : form})
+
+@login_required
+def project_create(request):
+    if request.method == 'POST':
+        form = ProjectForm(request.POST)
+        if form.is_valid():
+            project = form.save(commit=False)
+            project.user = request.user
+            project.save()
+            messages.success(request, 'Project created successfully!')
+            return redirect('project_list')
+    else:
+        form = ProjectForm()
+    return render(request, 'todo/project_form.html', {'form': form})

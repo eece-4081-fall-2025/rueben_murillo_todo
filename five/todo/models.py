@@ -2,10 +2,19 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-# Create your models here.
+class Project(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.name
 
 
 class ToDo(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, null = True, blank = True)
+    priority = models.IntegerField(default=3, choices=[(1,'High'),(2,'Medium'),(3,'Low')])
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     completed = models.BooleanField(default=False)
@@ -17,10 +26,6 @@ class ToDo(models.Model):
     @property
     def is_overdue(self):
         return not self.completed and self.due_date and timezone.now().date() > self.due_date
-    # class Meta:
-    #     ordering = ['due_date']
-    #     verbose_name = 'To-Do'
-    #     verbose_name_plural = 'To-Dos'
         
     def mark_complete(self):
         self.completed = True
@@ -31,4 +36,4 @@ class ToDo(models.Model):
         self.save()
     
     def __str__(self):
-        return self.name
+        return f"{self.name} ({self.get_priority_display()})"
