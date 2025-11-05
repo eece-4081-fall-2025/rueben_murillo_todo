@@ -51,6 +51,11 @@ def register_view(request):
 @login_required
 def todo_list(request):  
     todos = ToDo.objects.filter(user=request.user).order_by('priority', 'due_date')
+    projects = Project.objects.filter(user=request.user)
+    project_filter = request.GET.get('project')
+    if project_filter:
+        todos = todos.filter(project__id=project_filter)
+        
     query = request.GET.get('q')
     if query:
         todos = todos.filter(name__icontains=query)
@@ -66,17 +71,24 @@ def todo_list(request):
     
     
 @login_required
-def todo_create(request):  # Renamed from todo_create
+def todo_create(request): 
+    project_id = request.GET.get('project')  
+    project= None
+    if project_id:
+        project=get_object_or_404(Project, id=project_id, user=request.user)
+        
     if request.method == 'POST':
-        form = ToDoForm(request.POST)
+        form = ToDoForm(request.POST, user= request.user)
         if form.is_valid():
             todo = form.save(commit=False)
             todo.user = request.user
             todo.save()
             messages.success(request, 'Task created successfully!')
             return redirect('todo_list')
+        else:
+            print(form.errors)
     else:
-        form = ToDoForm()
+        form = ToDoForm(user= request.user, initial={'project': project})
     
     return render(request, 'todo/todo_form.html', {
         'form': form,

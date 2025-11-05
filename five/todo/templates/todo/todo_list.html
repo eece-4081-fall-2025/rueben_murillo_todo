@@ -1,4 +1,3 @@
-<!-- templates/todo/todo_list.html -->
 {% extends 'todo/base.html' %}
 
 {% block title %}My Todos{% endblock %}
@@ -9,6 +8,7 @@
     <div>
         <a href="{% url 'todo_create' %}" class="btn btn-primary">+ New Todo</a>
         <a href="{% url 'project_list' %}" class="btn btn-secondary">Projects</a>
+        <a href="{% url 'project_create' %}" class="btn btn-success">+ Add Todo to Project </a>
     </div>
 </div>
 

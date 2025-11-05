@@ -1,4 +1,3 @@
-<!-- templates/todo/todo_form.html -->
 {% extends 'todo/base.html' %}
 
 {% block title %}{{ action }} Todo{% endblock %}
@@ -37,6 +36,24 @@
                             <div class="text-danger">{{ form.due_date.errors }}</div>
                         {% endif %}
                         <div class="form-text">Optional: Set a due date for this todo</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.priority.id_for_label }}" class="form-label">Priority</label>
+                        {{ form.priority }}
+                        {% if form.priority.errors %}
+                        <div class="text-danger">{{ form.priority.errors }}</div>
+                        {% endif %}
+                        <div class="form-text">Select task importance level</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.project.id_for_label }}" class="form-label">Project</label>
+                        {{ form.project }}
+                        {% if form.project.errors %}
+                            <div class="text-danger">{{ form.project.errors }}</div>
+                        {% endif %}
+                        <div class="form-text">Select a project to assign this task</div>
                     </div>
 
                     <div class="d-flex gap-2">
