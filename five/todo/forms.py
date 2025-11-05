@@ -15,6 +15,7 @@ class ToDoForm(forms.ModelForm):
         super().__init__(*args,**kwargs)
         if user:
             self.fields['project'].queryset = Project.objects.filter(user=user)
+            self.fields['priority'].initial = 3
         
 class ProjectForm(forms.ModelForm):
     class Meta:

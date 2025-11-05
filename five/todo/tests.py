@@ -16,13 +16,14 @@ class ToDoTests(TestCase):
 
     def test_create_new_todo(self):
         """User can create a new todo item"""
+        project = Project.objects.create(user=self.user, name="Test Project", description="Test desc")
         data = {
             "name": "Write unit tests",
             "description": "Add tests for new features",
             "due_date": "2025-12-31",
             "completed": False,
             "priority": 3,
-            "project": "",
+            "project": project.id,
         }
         response = self.client.post(reverse("todo_create"), data)
         self.assertEqual(response.status_code, 302)
@@ -35,6 +36,7 @@ class ToDoTests(TestCase):
 
     def test_edit_existing_todo(self):
         """User can edit an existing task"""
+        project = Project.objects.create(user=self.user, name="Edit Project", description="Edit desc")
         todo = ToDo.objects.create(
             user=self.user,
             name="Old Name",
@@ -42,6 +44,7 @@ class ToDoTests(TestCase):
             due_date="2025-11-30",
             completed=False,
             priority=3,
+            project=project,
         )
         edit_data = {
             "name": "Updated Name",
@@ -49,6 +52,7 @@ class ToDoTests(TestCase):
             "due_date": "2025-12-15",
             "completed": False,
             "priority": 2,
+            "project": project.id,
         }
         response = self.client.post(
             reverse("todo_edit", args=[todo.pk]),
@@ -104,6 +108,9 @@ class ToDoTests(TestCase):
         invalid_data = {
             "name": "Invalid Date",
             "due_date": "31-12-2025",  # wrong format
+            "priority": 1,
+            "completed": False,
+            "project": "",
         }
         response = self.client.post(reverse("todo_create"), invalid_data)
         self.assertEqual(response.status_code, 200)  # stays on same page

@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 class Project(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -13,8 +13,8 @@ class Project(models.Model):
 
 
 class ToDo(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, null = True, blank = True)
-    priority = models.IntegerField(default=3, choices=[(1,'High'),(2,'Medium'),(3,'Low')])
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
+    priority = models.PositiveSmallIntegerField(default=3, choices=[(1, 'High'), (2, 'Medium'), (3, 'Low')])
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     completed = models.BooleanField(default=False)
@@ -37,3 +37,6 @@ class ToDo(models.Model):
     
     def __str__(self):
         return f"{self.name} ({self.get_priority_display()})"
+    
+    class Meta:
+        ordering = ['priority', 'due_date', 'created_at']
