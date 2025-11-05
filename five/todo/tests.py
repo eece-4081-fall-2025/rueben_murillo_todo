@@ -22,7 +22,7 @@ class ToDoTests(TestCase):
             "due_date": "2025-12-31",
             "completed": False,
             "priority": 3,
-            "project": ""
+            "project": None
         }
         response = self.client.post(reverse("todo_create"), data)
         self.assertEqual(response.status_code, 302)
@@ -50,7 +50,7 @@ class ToDoTests(TestCase):
             "due_date": "2025-12-15",
             "completed": False,
             "priority": 2,
-            "project": ""
+            "project": None
         }
         response = self.client.post(
             reverse("todo_edit", args=[todo.pk]),
