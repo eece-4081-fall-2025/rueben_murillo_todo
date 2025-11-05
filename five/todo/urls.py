@@ -2,8 +2,6 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
 
-app_name = "todo"
-
 urlpatterns = [
     path("", views.login_view, name="login"),
     path("login/", views.login_view, name="login"),
@@ -22,7 +20,7 @@ urlpatterns = [
     path("reset/done/",
          auth_views.PasswordResetCompleteView.as_view(template_name="registration/password_reset_complete.html"),
          name="password_reset_complete"),
-    
+
     path("todos/", views.todo_list, name="todo_list"),
     path("create/", views.todo_create, name="todo_create"),
     path("<int:pk>/edit/", views.todo_edit, name="todo_edit"),

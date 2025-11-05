@@ -22,7 +22,7 @@ class ToDoTests(TestCase):
             "due_date": "2025-12-31",
             "completed": False,
             "priority": 3,
-            "project": None
+            "project": "",
         }
         response = self.client.post(reverse("todo_create"), data)
         self.assertEqual(response.status_code, 302)
@@ -42,7 +42,6 @@ class ToDoTests(TestCase):
             due_date="2025-11-30",
             completed=False,
             priority=3,
-            project= None
         )
         edit_data = {
             "name": "Updated Name",
@@ -50,7 +49,6 @@ class ToDoTests(TestCase):
             "due_date": "2025-12-15",
             "completed": False,
             "priority": 2,
-            "project": None
         }
         response = self.client.post(
             reverse("todo_edit", args=[todo.pk]),
@@ -63,14 +61,14 @@ class ToDoTests(TestCase):
 
     def test_delete_todo(self):
         """User can delete an existing task"""
-        todo = ToDo.objects.create(user=self.user, name="To Delete")
+        todo = ToDo.objects.create(user=self.user, name="To Delete", project=None)
         response = self.client.post(reverse("todo_delete", args=[todo.pk]))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(ToDo.objects.count(), 0)
 
     def test_mark_complete_and_incomplete(self):
         """Check mark_complete and mark_incomplete methods"""
-        todo = ToDo.objects.create(user=self.user, name="Toggle Test")
+        todo = ToDo.objects.create(user=self.user, name="Toggle Test", project=None)
         todo.mark_complete()
         self.assertTrue(todo.completed)
 
@@ -84,7 +82,8 @@ class ToDoTests(TestCase):
             user=self.user,
             name="Overdue Task",
             due_date=past_date,
-            completed=False
+            completed=False,
+            project=None
         )
         self.assertTrue(todo.is_overdue)
 
@@ -95,7 +94,8 @@ class ToDoTests(TestCase):
             user=self.user,
             name="Done Task",
             due_date=past_date,
-            completed=True
+            completed=True,
+            project=None
         )
         self.assertFalse(todo.is_overdue)
 
