@@ -1,13 +1,55 @@
 # views.py - UPDATE function names
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import authenticate, login as auth_login, logout
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from .models import ToDo
 from .forms import ToDoForm
 
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('todo_list')
+    context = {}
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            auth_login(request, user)
+            return redirect('todo_list')
+        else:
+            context['error'] = 'Invalid username or password.'
+    
+    return render(request, 'todo/login.html', context)
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+
+def register_view(request):
+    if request.user.is_authenticated:
+        return redirect('todo_list')
+    context = {}
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        password_confirm = request.POST.get('password_confirm')
+        
+        if password != password_confirm:
+            context['error'] = 'Passwords do not match.'
+        elif User.objects.filter(username=username).exists():
+            context['error'] = 'Username already taken.'
+        else:
+            user = User.objects.create_user(username=username, password=password)
+            auth_login(request, user)
+            return redirect('todo_list')
+    
+    return render(request, 'todo/register.html', context)
+
 @login_required
-def todo_list(request):  # Renamed from todo_list
+def todo_list(request):  
     todos = ToDo.objects.filter(user=request.user)
     return render(request, 'todo/todo_list.html', {'todos': todos})
 
@@ -79,6 +121,6 @@ def todo_toggle_complete(request, pk):  # Renamed from todo_toggle_complete
             'status': status,
             'completed': todo.completed
         })
-    
-    messages.success(request, f'Task marked as {status}!')
-    return redirect('task_list')
+
+    messages.success(request, f'Todo marked as {status}!')
+    return redirect('todo_list')

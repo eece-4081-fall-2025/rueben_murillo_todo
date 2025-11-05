@@ -12,7 +12,7 @@ class ToDo(models.Model):
     due_date = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='todos',blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='todos', blank=True, null=True)
 
     @property
     def is_overdue(self):

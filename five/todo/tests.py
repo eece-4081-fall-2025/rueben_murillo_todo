@@ -5,15 +5,7 @@ from django.contrib.auth.models import User
 from .models import ToDo
 
 class ToDoCreationTest(TestCase):
-    """
-    Given a valid task title, description, and due date,
-    When the user submits the create task form
-    THEN a new Task should be saved in the database
-    AND the user should be redirected to the task list
-    """
-    
     def setUp(self):
-        """Create and login a test user"""
         self.user = User.objects.create_user(
             username='testuser',
             password='testpass123'
@@ -36,4 +28,51 @@ class ToDoCreationTest(TestCase):
         self.assertEqual(ToDo.objects.count(), 1)
         self.assertEqual(todo.name, "Write unit tests")
         self.assertFalse(todo.completed)
-        self.assertEqual(str(todo.due_date), "2024-12-31")
+        self.assertEqual(todo.due_date.isoformat(), "2024-12-31")
+        
+    
+
+# Additional CRUD tests
+class ToDoEditTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='edituser', password='testpass123')
+        self.client.login(username='edituser', password='testpass123')
+        self.todo = ToDo.objects.create(user=self.user, name='Old name', description='Old desc', completed=False)
+
+    def test_edit_todo(self):
+        data = {
+            'name': 'Updated name',
+            'description': 'Updated description',
+            'due_date': '2024-12-31',
+            'completed': True
+        }
+        response = self.client.post(reverse('todo_edit', args=[self.todo.id]), data)
+        self.assertEqual(response.status_code, 302)
+        self.todo.refresh_from_db()
+        self.assertEqual(self.todo.name, 'Updated name')
+        self.assertTrue(self.todo.completed)
+
+
+class ToDoDeleteTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='deleteuser', password='testpass123')
+        self.client.login(username='deleteuser', password='testpass123')
+        self.todo = ToDo.objects.create(user=self.user, name='Delete me', description='Test delete')
+
+    def test_delete_todo(self):
+        response = self.client.post(reverse('todo_delete', args=[self.todo.id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(ToDo.objects.count(), 0)
+
+
+class ToDoToggleCompleteTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='toggleuser', password='testpass123')
+        self.client.login(username='toggleuser', password='testpass123')
+        self.todo = ToDo.objects.create(user=self.user, name='Toggle test', completed=False)
+
+    def test_toggle_complete(self):
+        response = self.client.get(reverse('todo_toggle_complete', args=[self.todo.id]))
+        self.assertEqual(response.status_code, 302)
+        self.todo.refresh_from_db()
+        self.assertTrue(self.todo.completed)
