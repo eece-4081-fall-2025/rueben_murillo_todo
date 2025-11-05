@@ -135,17 +135,21 @@ def todo_toggle_complete(request, pk):  # Renamed from todo_toggle_complete
 
 @login_required
 def project_list(request):
+    projects = Project.objects.filter(user=request.user)
     if request.method == 'POST':
         form = ProjectForm(request.POST)
         if form.is_valid():
-            project = form.save(commit= False)
+            project = form.save(commit=False)
             project.user = request.user
             project.save()
             messages.success(request, 'Project created successfully!')
             return redirect('project_list')
     else:
         form = ProjectForm()
-    return render(request, 'todo/project_form.html', {'form' : form})
+        
+    return render(request, 'todo/project_list.html', {
+        'projects': projects,
+        'form': form})
 
 @login_required
 def project_create(request):

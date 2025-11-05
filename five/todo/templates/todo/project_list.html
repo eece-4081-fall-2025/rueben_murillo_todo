@@ -1,0 +1,12 @@
+{% extends "todo/base.html" %}
+{% block content %}
+<h2>Projects</h2>
+<a href="{% url 'project_create' %}" class="btn btn-primary">+ Add Project</a>
+<ul>
+    {% for project in projects %}
+        <li>{{ project.name }} — {{ project.description|default:"(no description)" }}</li>
+    {% empty %}
+        <p>No projects yet.</p>
+    {% endfor %}
+</ul>
+{% endblock %}

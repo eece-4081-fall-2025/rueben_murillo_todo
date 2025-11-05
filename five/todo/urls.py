@@ -15,6 +15,7 @@ urlpatterns = [
     path('<int:pk>/edit/', views.todo_edit, name='todo_edit'),
     path('<int:pk>/delete/', views.todo_delete, name='todo_delete'),
     path('<int:pk>/toggle/', views.todo_toggle_complete, name='todo_toggle_complete'),
+    
     path('projects/', views.project_list, name = 'project_list'),
     path('projects/create/', views.project_create, name='project_create'),
 ]

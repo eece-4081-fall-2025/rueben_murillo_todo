@@ -20,7 +20,9 @@ class ToDoTests(TestCase):
             "name": "Write unit tests",
             "description": "Add tests for new features",
             "due_date": "2025-12-31",
-            "completed": False
+            "completed": False,
+            "priority": 3,
+            "project": ""
         }
         response = self.client.post(reverse("todo_create"), data)
         self.assertEqual(response.status_code, 302)
@@ -37,13 +39,18 @@ class ToDoTests(TestCase):
             user=self.user,
             name="Old Name",
             description="Old desc",
-            due_date="2025-11-30"
+            due_date="2025-11-30",
+            completed=False,
+            priority=3,
+            project= None
         )
         edit_data = {
             "name": "Updated Name",
             "description": "New desc",
             "due_date": "2025-12-15",
-            "completed": False
+            "completed": False,
+            "priority": 2,
+            "project": ""
         }
         response = self.client.post(
             reverse("todo_edit", args=[todo.pk]),
