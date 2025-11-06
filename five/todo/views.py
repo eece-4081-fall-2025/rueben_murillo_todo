@@ -100,7 +100,7 @@ def todo_edit(request, pk):  # Renamed from todo_edit
     todo = get_object_or_404(ToDo, pk=pk, user=request.user)
     
     if request.method == 'POST':
-        form = ToDoForm(request.POST, instance=todo)
+        form = ToDoForm(request.POST, instance=todo, user=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, 'Task updated successfully!')
