@@ -1,5 +1,6 @@
 {% extends "todo/base.html" %}
 {% block content %}
+<a href="{% url 'todo_list' %}" class="btn btn-secondary mb-3"> Back to Todos</a>
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h2>Projects</h2>
   <a href="{% url 'project_create' %}" class="btn btn-primary">+ Add Project</a>
