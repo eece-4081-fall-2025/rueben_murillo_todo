@@ -154,3 +154,9 @@ class ToDoProjectFilterTests(TestCase):
         todos = response.context["todos"]
         self.assertEqual(todos.count(), 1)
         self.assertEqual(todos.first().project, self.project_a)
+        
+    def test_delete_project(self):
+        project = Project.objects.create(user=self.user, name="Temp Project")
+        response = self.client.post(reverse("project_delete", args=[project.id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Project.objects.filter(id=project.id).exists())
