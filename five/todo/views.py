@@ -183,7 +183,7 @@ def project_delete(request, pk):
     
     if request.method == 'POST':
         project.delete()
-        messages.success(request, f'Project "{project.name}" deleted successfully!')
+        messages.success(request, f"Project '{project.name}' deleted successfully!")
         return redirect('project_list')
     
     return render(request, 'todo/project_confirm_delete.html', {'project': project})
