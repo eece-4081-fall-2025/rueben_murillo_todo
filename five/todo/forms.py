@@ -4,8 +4,15 @@ from .models import ToDo,Project
 class ToDoForm(forms.ModelForm):
     due_date = forms.DateField(
         required = False,
-        widget=forms.DateInput(attrs={'type':'date'},format='%Y-%m-%d'),
-        input_formats=['%Y-%m-%d'])
+        widget=forms.DateInput(attrs={'type':'date'}),
+        input_formats=['%Y-%m-%d'],
+    )
+    #Test method for debugging
+    # def clean_due_date(self):
+    #     due_date = self.cleaned_data.get('due_date')
+    #     print(f"DEBUG - due_date value : {due_date!r}")
+    #     print(f"DEBUG - due_date type : {type(due_date)}")
+    #     return due_date
     class Meta:
         model = ToDo
         fields = ['name', 'description', 'due_date', 'completed', 'priority', 'project']

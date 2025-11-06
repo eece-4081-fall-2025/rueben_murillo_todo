@@ -176,3 +176,14 @@ def project_create(request):
     else:
         form = ProjectForm()
     return render(request, 'todo/project_form.html', {'form': form})
+
+@login_required
+def project_delete(request, pk):
+    project = get_object_or_404(Project, pk=pk, user=request.user)
+    
+    if request.method == 'POST':
+        project.delete()
+        messages.success(request, f'Project "{project.name}" deleted successfully!')
+        return redirect('project_list')
+    
+    return render(request, 'todo/project_confirm_delete.html', {'project': project})
