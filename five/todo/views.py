@@ -52,23 +52,22 @@ def register_view(request):
 def todo_list(request):  
     todos = ToDo.objects.filter(user=request.user).order_by('priority', 'due_date')
     projects = Project.objects.filter(user=request.user)
-    project_filter = request.GET.get('project')
-    if project_filter:
-        todos = todos.filter(project__id=project_filter)
-        
+    
     query = request.GET.get('q')
-    if query:
-        todos = todos.filter(name__icontains=query)
-    
     project_filter = request.GET.get('project')
+    priority = request.GET.get('priority')
+    status = request.GET.get('status')
+    
+    if query:
+        todos= todos.filter(name__icontains=query)
     if project_filter:
         todos = todos.filter(project__id=project_filter)
-        
-    return render(request, 'todo/todo_list.html', {
-        'todos': todos,
-        'projects': Project.objects.filter(user=request.user),
-    })    
-    
+    if priority: 
+        todos = todos.filter(priority=priority)
+    if status == 'completed':
+        todos = todos.filter(completed = True)
+    elif status == 'incomplete':
+        todos = todos.filter(completed = False)
     
 @login_required
 def todo_create(request): 
@@ -148,20 +147,8 @@ def todo_toggle_complete(request, pk):  # Renamed from todo_toggle_complete
 @login_required
 def project_list(request):
     projects = Project.objects.filter(user=request.user)
-    if request.method == 'POST':
-        form = ProjectForm(request.POST)
-        if form.is_valid():
-            project = form.save(commit=False)
-            project.user = request.user
-            project.save()
-            messages.success(request, 'Project created successfully!')
-            return redirect('project_list')
-    else:
-        form = ProjectForm()
-        
     return render(request, 'todo/project_list.html', {
-        'projects': projects,
-        'form': form})
+        'projects': projects,})
 
 @login_required
 def project_create(request):
