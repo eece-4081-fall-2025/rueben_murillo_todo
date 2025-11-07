@@ -68,6 +68,15 @@ def todo_list(request):
         todos = todos.filter(completed = True)
     elif status == 'incomplete':
         todos = todos.filter(completed = False)
+
+@login_required
+def reorder_todos(request)
+    if request.method == 'POST':
+        order = request.POST.getlist('order[]')
+        for idx, todo in enumerate(order):
+            ToDo.objects.filter(id=todo_id, user=request.user).update(priority=idx)
+        return JsonResponse({'success': True})
+    return JsonResponse({'error' : 'Invalid request'}, status=400)
     
 @login_required
 def todo_create(request): 
