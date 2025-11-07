@@ -61,7 +61,10 @@ def todo_list(request):
     if query:
         todos= todos.filter(name__icontains=query)
     if project_filter:
-        todos = todos.filter(project__id=project_filter)
+        try:
+            todos = todos.filter(project__id=project_filter)
+        except (ValueError, TypeError):
+            pass
     if priority: 
         todos = todos.filter(priority=priority)
     if status == 'completed':
