@@ -27,6 +27,8 @@ class ToDo(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='todos', blank=True, null=True)
+    reminder_time = models.DateTimeField(null=True, blank=True)
+    assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_tasks')
 
     @property
     def is_overdue(self):
