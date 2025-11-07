@@ -8,6 +8,11 @@ class Project(models.Model):
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
+    def completion_percent(self):
+        total = self.todos.count()
+        done = self.todos.filter(completed=True).count()
+        return int(done / total *100) if total else 0
+    
     def __str__(self):
         return self.name
 
